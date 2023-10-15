@@ -16,4 +16,4 @@ app.get("/api/travel", (req, res) => res.send("API Running"));
 app.use("/api/facilities", require("./routes/api/facilities"));
 app.use("/api/wcChargers", require("./routes/api/wcChargers"));
 
-app.listen(PORT, () => console.log(`Auth service Running on port ${PORT}`));
+app.listen(PORT, () => console.log(`service running on port ${PORT}`));
