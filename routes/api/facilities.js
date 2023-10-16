@@ -16,8 +16,7 @@ router.get("/", async (req, res) => {
 
 router.get("/short", async (req, res) => {
   try {
-    const facilities = await Facility.find();
-    facilities.slice(0, 3);
+    const facilities = await Facility.findOne();
     console.log(facilities);
     res.json(facilities);
   } catch (err) {
