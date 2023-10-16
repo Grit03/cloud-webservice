@@ -5,9 +5,11 @@ const WcCharger = require("../../models/WcCharger");
 router.get("/", async (req, res) => {
   try {
     const wcChargers = await WcCharger.find();
+    console.log(wcChargers);
     res.json(wcChargers);
   } catch (err) {
-    console.error(err.message);
+    const date = new Date(Date.now());
+    console.error(`${err} (${date.toLocaleString()})`);
     res.status(500).send("Server Error");
   }
 });
