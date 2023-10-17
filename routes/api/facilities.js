@@ -1,6 +1,5 @@
 import express from "express";
 import axios from "axios";
-import convert from "xml-js";
 import xmlParser from "xml2json";
 import { env } from "../../config/config.js";
 import url from "url";
