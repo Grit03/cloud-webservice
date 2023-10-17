@@ -58,7 +58,7 @@ router.get("/", async (req, res) => {
   try {
     const result = await getAll(x, y);
     if (result == null) res.json({ msg: "No places found" });
-    console.log(result);
+
     res.json(result);
   } catch (err) {
     const date = new Date(Date.now());
@@ -89,7 +89,7 @@ router.get("/wcCharger", async (req, res) => {
 
     const finishedResult = await result.map((i) => ({
       ...i,
-      wcChargers: filterPlacesByRadius(wcChargers, i.mapy, i.mapx, 3),
+      wcChargers: filterPlacesByRadius(wcChargers, i.mapy, i.mapx, 1),
     }));
 
     console.log(req.query);
