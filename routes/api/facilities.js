@@ -3,16 +3,23 @@ import axios from "axios";
 import xmlParser from "xml2json";
 import { env } from "../../config/config.js";
 import url from "url";
+import { s3 } from "../../middleware/s3Handler.js";
+import {
+  PutObjectCommand,
+  CreateBucketCommand,
+  DeleteObjectCommand,
+  DeleteBucketCommand,
+  paginateListObjectsV2,
+  GetObjectCommand,
+} from "@aws-sdk/client-s3";
+import { filterPlacesByRadius } from "./common.js";
 
 const { API_KEY, API_KEY2 } = env;
 const router = express.Router();
 
-router.get("/", async (req, res) => {
-  if (req.query.x == null || req.query.y == null)
-    return res.json({ msg: "Invalid query" });
+const bucketName = "travel-helper";
 
-  const { x, y } = req.query;
-
+const getAll = async (x, y) => {
   try {
     let payload = {
       numOfRows: 1000,
@@ -30,12 +37,63 @@ router.get("/", async (req, res) => {
       `https://apis.data.go.kr/B551011/KorWithService1/locationBasedList1?${params}`
     );
 
-    const parsedURL = url.parse(apiRes.config.url);
+    // const parsedURL = url.parse(apiRes.config.url);
     // console.log(parsedURL);
     // console.log(apiRes.data);
     var result = JSON.parse(xmlParser.toJson(apiRes.data));
-    // console.log(apiRes);
-    res.json(result.response.body.items.item);
+    return result.response.body.items.item;
+  } catch (err) {
+    const date = new Date(Date.now());
+    console.error(`${err} (${date.toLocaleString()})`);
+    return null;
+  }
+};
+
+router.get("/", async (req, res) => {
+  if (req.query.x == null || req.query.y == null)
+    return res.json({ msg: "Invalid query" });
+
+  const { x, y } = req.query;
+
+  try {
+    const result = await getAll(x, y);
+    if (result == null) res.json({ msg: "No places found" });
+    console.log(result);
+    res.json(result);
+  } catch (err) {
+    const date = new Date(Date.now());
+    console.error(`${err} (${date.toLocaleString()})`);
+    res.status(500).send("Server Error");
+  }
+});
+
+router.get("/wcCharger", async (req, res) => {
+  // Read the object.
+  try {
+    if (req.query.x == null || req.query.y == null)
+      return res.json({ msg: "Invalid query" });
+
+    const { x, y } = req.query;
+
+    const { Body } = await s3.send(
+      new GetObjectCommand({
+        Bucket: bucketName,
+        Key: "전국전동휠체어급속충전기표준데이터.json",
+      })
+    );
+
+    let wcChargers = JSON.parse(await Body.transformToString());
+    let result = await getAll(x, y);
+
+    if (result == null) res.json({ msg: "No places found" });
+
+    const finishedResult = await result.map((i) => ({
+      ...i,
+      wcChargers: filterPlacesByRadius(wcChargers, i.mapy, i.mapx, 3),
+    }));
+
+    console.log(req.query);
+    res.json(finishedResult);
   } catch (err) {
     const date = new Date(Date.now());
     console.error(`${err} (${date.toLocaleString()})`);
