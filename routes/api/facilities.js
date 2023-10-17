@@ -35,7 +35,7 @@ router.get("/", async (req, res) => {
     // console.log(apiRes.data);
     var result = JSON.parse(xmlParser.toJson(apiRes.data));
     // console.log(apiRes);
-    res.json(result.response.body);
+    res.json(result.response.body.items.item);
   } catch (err) {
     const date = new Date(Date.now());
     console.error(`${err} (${date.toLocaleString()})`);
