@@ -4,10 +4,8 @@ const MongoClient = require("mongodb").MongoClient;
 const AWS = require("aws-sdk");
 const axios = require("axios");
 const url = require("url");
-const MONGODB_URI =
-  "mongodb+srv://arefir:9TyKtv8B5LFW@gmstrial.ozjhp.mongodb.net/travel?retryWrites=true&w=majority";
-const API_KEY =
-  "yfF5xMOPBL4wu+0QC0elC1tTrMSdTUfiIBdjoUCsThkHNdR7hOjQc0C6rGzWSNS54e2MxKg0mDUvHTd+Vq3ilQ==";
+const MONGODB_URI = process.env.MONGODB_URI;
+const API_KEY = process.env.API_KEY;
 
 let cachedDb = null;
 

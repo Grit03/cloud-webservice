@@ -19,6 +19,7 @@ functions:
     memorySize: 128
     timeout: 15
     description: list nearby wheelchair chargers
+    environment: ${file(env.json)}
     events:
       - http:
           path: wcChargers
@@ -28,6 +29,7 @@ functions:
     memorySize: 512
     timeout: 30
     description: list nearby tourist spots with info on disabilities facilities
+    environment: ${file(env.json)}
     events:
       - http:
           path: spots
