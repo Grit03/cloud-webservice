@@ -31,7 +31,7 @@ AWS.config.update({
   region: "ap-northeast-2",
 });
 
-module.exports.list = async (event, context, callback) => {
+module.exports.listSpots = async (event, context, callback) => {
   context.callbackWaitsForEmptyEventLoop = false;
   let temp = JSON.stringify(event.queryStringParameters);
   const eventParams = JSON.parse(temp);

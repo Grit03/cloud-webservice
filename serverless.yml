@@ -15,7 +15,7 @@ provider:
 
 functions:
   listWcChargers:
-    handler: api/wcChargers.list
+    handler: api/facilities.listWcChargers
     memorySize: 128
     timeout: 15
     description: list nearby wheelchair chargers
@@ -34,3 +34,10 @@ functions:
       - http:
           path: spots
           method: get
+  # parkingLots:
+  # spotsInfo:
+  # spotsOverview:
+  # spotsDetail:
+  # spotSearch:
+  # walkingTravel:
+  # bikeTravel:
