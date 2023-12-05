@@ -24,6 +24,16 @@ functions:
       - http:
           path: facilities/wcChargers
           method: get
+  parkingLots:
+    handler: api/facilities.parkingLots
+    memorySize: 128
+    timeout: 15
+    description: list parking lots
+    environment: ${file(env.json)}
+    events:
+      - http:
+          path: facilities/parkingLots
+          method: get
   listSpots:
     handler: api/spots.list
     memorySize: 512
@@ -34,7 +44,6 @@ functions:
       - http:
           path: spots
           method: get
-  # parkingLots:
   spotsInfo:
     handler: api/spots.info
     memorySize: 128

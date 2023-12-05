@@ -3,8 +3,6 @@
 //? Imports & Configs
 const MongoClient = require("mongodb").MongoClient;
 const AWS = require("aws-sdk");
-
-// Define our connection string. Info on where to get this will be described below. In a real world application you'd want to get this string from a key vault like AWS Key Management, but for brevity, we'll hardcode it in our serverless function here.
 const MONGODB_URI = process.env.MONGODB_URI;
 
 let cachedDb = null;

@@ -20,7 +20,7 @@ async function connectToDatabase() {
   const db = await client.db("travel");
 
   cachedDb = db;
-  console.log("Conntected to MongoDB");
+  console.log("Connected to MongoDB");
   return db;
 }
 
@@ -82,6 +82,24 @@ module.exports.list = async (event, context, callback) => {
             wcChargers: filterPlacesByRadius(wcChargers, f.mapy, f.mapx, 0.5),
           }))
         ).then((list) => (spots = list));
+      }
+      // console.log(eventParams);
+
+      if (eventParams.parkingLot == "true") {
+        //!RATE LIMIT
+        // await Promise.all(
+        //   await spots.map(async (f) => ({
+        //     ...f,
+        //     parkingLots: await getParkingLots(f.mapy, f.mapx),
+        //   }))
+        // ).then((list) => (spots = list));
+
+        for (let i = 0; i < 10; i++) {
+          spots[i] = {
+            ...spots[i],
+            parkingLots: await getParkingLots(spots[i].mapy, spots[i].mapx),
+          };
+        }
       }
 
       callback(null, {
@@ -310,4 +328,25 @@ const filterPlacesByRadius = (places, centerLat, centerLon, maxDistance) => {
     }
   }
   return filteredPlaces;
+};
+
+const getParkingLots = async (y, x) => {
+  const payload = {
+    queryStringParameters: {
+      y: y,
+      x: x,
+    },
+  };
+
+  const params = {
+    FunctionName: "travel-service-dev-parkingLots",
+    InvocationType: "RequestResponse",
+    LogType: "None",
+    Payload: JSON.stringify(payload),
+  };
+
+  const parkingLotsRes = await lambda.invoke(params).promise();
+  let parkingLots = JSON.parse(parkingLotsRes.Payload);
+  parkingLots = JSON.parse(parkingLots.body);
+  return parkingLots.parkingLots;
 };
