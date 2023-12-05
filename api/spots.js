@@ -191,8 +191,8 @@ module.exports.detail = async (event, context, callback) => {
 module.exports.info = async (event, context, callback) => {
   const temp = JSON.stringify(event.queryStringParameters);
   const eventParams = JSON.parse(temp);
-  const contentId = eventParams.contentId;
-  const contentTypeId = eventParams.contentTypeId;
+  const contentId = eventParams.id;
+  const contentTypeId = eventParams.type;
 
   try {
     const payload = {
@@ -239,6 +239,41 @@ module.exports.info = async (event, context, callback) => {
       body: JSON.stringify({
         message: err.message,
       }),
+    });
+  }
+};
+
+//spotSearch
+module.exports.search = async (event, context, callback) => {
+  const temp = JSON.stringify(event.queryStringParameters);
+  const eventParams = JSON.parse(temp);
+  const keyword = eventParams.keyword;
+  const encoded = encodeURIComponent(keyword);
+
+  try {
+    const payload = {
+      MobileOS: "ETC",
+      MobileApp: "travelHelper",
+      _type: "json",
+      serviceKey: API_KEY,
+    };
+
+    const params = new url.URLSearchParams(payload);
+
+    const apiRes = await axios.get(
+      `https://apis.data.go.kr/B551011/KorWithService1/searchKeyword1?keyword=${encoded}&${params}`
+    );
+
+    const spots = apiRes.data.response.body.items.item;
+
+    callback(null, {
+      statusCode: 200,
+      body: JSON.stringify({ spots: spots }),
+    });
+  } catch (err) {
+    callback(null, {
+      statusCode: 500,
+      body: JSON.stringify({ message: err.message }),
     });
   }
 };

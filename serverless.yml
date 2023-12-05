@@ -65,6 +65,15 @@ functions:
     #   - http:
     #       path: spots/detail
     #       method: get
-  # spotSearch:
+  spotSearch:
+    handler: api/spots.search
+    memorySize: 128
+    timeout: 15
+    description: search for specific spot with keyword
+    environment: ${file(env.json)}
+    events:
+      - http:
+          path: spots/search
+          method: get
   # walkingTravel:
   # bikeTravel:
