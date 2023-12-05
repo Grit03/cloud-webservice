@@ -1,5 +1,6 @@
 "use strict";
 
+//? Imports & Configs
 const MongoClient = require("mongodb").MongoClient;
 const AWS = require("aws-sdk");
 
@@ -27,7 +28,7 @@ AWS.config.update({
   region: "ap-northeast-2",
 });
 
-//walkingTravel
+//` walkingTravel
 module.exports.walking = async (event, context, callback) => {
   context.callbackWaitsForEmptyEventLoop = false;
 

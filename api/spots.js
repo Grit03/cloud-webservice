@@ -1,5 +1,6 @@
 "use strict";
 
+//? Imports & Configs
 const MongoClient = require("mongodb").MongoClient;
 const AWS = require("aws-sdk");
 const lambda = new AWS.Lambda();
@@ -29,7 +30,7 @@ AWS.config.update({
   region: "ap-northeast-2",
 });
 
-//listSpots
+//` listSpots
 module.exports.list = async (event, context, callback) => {
   context.callbackWaitsForEmptyEventLoop = false;
   let temp = JSON.stringify(event.queryStringParameters);
@@ -106,7 +107,7 @@ module.exports.list = async (event, context, callback) => {
   }
 };
 
-//spotsOverview
+//` spotsOverview
 module.exports.overview = async (event, context, callback) => {
   const temp = JSON.stringify(event.queryStringParameters);
   const eventParams = JSON.parse(temp);
@@ -144,7 +145,7 @@ module.exports.overview = async (event, context, callback) => {
   }
 };
 
-//spotsDetail
+//` spotsDetail
 module.exports.detail = async (event, context, callback) => {
   const temp = JSON.stringify(event.queryStringParameters);
   const eventParams = JSON.parse(temp);
@@ -185,6 +186,7 @@ module.exports.detail = async (event, context, callback) => {
   }
 };
 
+//` spotsInfo
 module.exports.info = async (event, context, callback) => {
   const temp = JSON.stringify(event.queryStringParameters);
   const eventParams = JSON.parse(temp);
@@ -240,7 +242,7 @@ module.exports.info = async (event, context, callback) => {
   }
 };
 
-//spotSearch
+//` spotSearch
 module.exports.search = async (event, context, callback) => {
   const temp = JSON.stringify(event.queryStringParameters);
   const eventParams = JSON.parse(temp);
@@ -275,7 +277,7 @@ module.exports.search = async (event, context, callback) => {
   }
 };
 
-//external functions
+//+ External Functions
 const haversine = (lat1, lon1, lat2, lon2) => {
   // Radius of the Earth in kilometers
   const earthRadius = 6371;

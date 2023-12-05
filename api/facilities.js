@@ -1,5 +1,6 @@
 "use strict";
 
+//? Imports & Configs
 const MongoClient = require("mongodb").MongoClient;
 const AWS = require("aws-sdk");
 
@@ -26,6 +27,7 @@ AWS.config.update({
   region: "ap-northeast-2",
 });
 
+//` listWcChargers
 module.exports.listWcChargers = async (event, context, callback) => {
   context.callbackWaitsForEmptyEventLoop = false;
 
