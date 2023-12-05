@@ -22,7 +22,7 @@ functions:
     environment: ${file(env.json)}
     events:
       - http:
-          path: wcChargers
+          path: facilities/wcChargers
           method: get
   listSpots:
     handler: api/spots.list
@@ -35,9 +35,36 @@ functions:
           path: spots
           method: get
   # parkingLots:
-  # spotsInfo:
-  # spotsOverview:
-  # spotsDetail:
+  spotsInfo:
+    handler: api/spots.info
+    memorySize: 128
+    timeout: 15
+    description: get info (overview + details) for a specific spot
+    environment: ${file(env.json)}
+    events:
+      - http:
+          path: spots/info
+          method: get
+  spotsOverview:
+    handler: api/spots.overview
+    memorySize: 128
+    timeout: 15
+    description: get overview of specific spot
+    environment: ${file(env.json)}
+    # events:
+    #   - http:
+    #       path: spots/overview
+    #       method: get
+  spotsDetail:
+    handler: api/spots.detail
+    memorySize: 128
+    timeout: 15
+    description: get details of specific spot
+    environment: ${file(env.json)}
+    # events:
+    #   - http:
+    #       path: spots/detail
+    #       method: get
   # spotSearch:
   # walkingTravel:
   # bikeTravel:

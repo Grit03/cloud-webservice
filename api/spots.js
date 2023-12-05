@@ -2,6 +2,7 @@
 
 const MongoClient = require("mongodb").MongoClient;
 const AWS = require("aws-sdk");
+const lambda = new AWS.Lambda();
 const axios = require("axios");
 const url = require("url");
 const MONGODB_URI = process.env.MONGODB_URI;
@@ -31,7 +32,8 @@ AWS.config.update({
   region: "ap-northeast-2",
 });
 
-module.exports.listSpots = async (event, context, callback) => {
+//listSpots
+module.exports.list = async (event, context, callback) => {
   context.callbackWaitsForEmptyEventLoop = false;
   let temp = JSON.stringify(event.queryStringParameters);
   const eventParams = JSON.parse(temp);
@@ -48,7 +50,7 @@ module.exports.listSpots = async (event, context, callback) => {
     try {
       let payload = {
         numOfRows: 1000,
-        MobileOS: "WIN",
+        MobileOS: "ETC",
         MobileApp: "travelHelper",
         mapX: x,
         mapY: y,
@@ -107,6 +109,141 @@ module.exports.listSpots = async (event, context, callback) => {
   }
 };
 
+//spotsOverview
+module.exports.overview = async (event, context, callback) => {
+  const temp = JSON.stringify(event.queryStringParameters);
+  const eventParams = JSON.parse(temp);
+  const contentId = eventParams.contentId;
+
+  try {
+    let payload = {
+      MobileOS: "ETC",
+      MobileApp: "travelHelper",
+      contentId: contentId,
+      overviewYN: "Y",
+      _type: "json",
+      serviceKey: API_KEY,
+    };
+
+    const params = new url.URLSearchParams(payload);
+
+    const apiRes = await axios.get(
+      `https://apis.data.go.kr/B551011/KorWithService1/detailCommon1?${params}`
+    );
+
+    const overview = apiRes.data.response.body.items.item[0].overview;
+
+    callback(null, {
+      statusCode: 200,
+      body: JSON.stringify({ overview: overview }),
+    });
+  } catch (err) {
+    callback(null, {
+      statusCode: 500,
+      body: JSON.stringify({
+        message: err.message,
+      }),
+    });
+  }
+};
+
+//spotsDetail
+module.exports.detail = async (event, context, callback) => {
+  const temp = JSON.stringify(event.queryStringParameters);
+  const eventParams = JSON.parse(temp);
+  const contentId = eventParams.contentId;
+  const contentTypeId = eventParams.contentTypeId;
+
+  try {
+    let payload = {
+      MobileOS: "ETC",
+      MobileApp: "travelHelper",
+      contentId: contentId,
+      contentTypeId: contentTypeId,
+      _type: "json",
+      serviceKey: API_KEY,
+    };
+
+    const params = new url.URLSearchParams(payload);
+
+    const apiRes = await axios.get(
+      `https://apis.data.go.kr/B551011/KorWithService1/detailIntro1?${params}`
+    );
+
+    const detail = apiRes.data.response.body.items.item[0];
+
+    console.log(detail);
+
+    callback(null, {
+      statusCode: 200,
+      body: JSON.stringify({ detail: detail }),
+    });
+  } catch (err) {
+    callback(null, {
+      statusCode: 500,
+      body: JSON.stringify({
+        message: err.message,
+      }),
+    });
+  }
+};
+
+module.exports.info = async (event, context, callback) => {
+  const temp = JSON.stringify(event.queryStringParameters);
+  const eventParams = JSON.parse(temp);
+  const contentId = eventParams.contentId;
+  const contentTypeId = eventParams.contentTypeId;
+
+  try {
+    const payload = {
+      queryStringParameters: {
+        contentId: contentId,
+        contentTypeId: contentTypeId,
+      },
+    };
+
+    const params1 = {
+      FunctionName: "travel-service-dev-spotsOverview",
+      InvocationType: "RequestResponse",
+      LogType: "None",
+      Payload: JSON.stringify(payload),
+    };
+
+    const params2 = {
+      FunctionName: "travel-service-dev-spotsDetail",
+      InvocationType: "RequestResponse",
+      LogType: "None",
+      Payload: JSON.stringify(payload),
+    };
+
+    const overviewRes = await lambda.invoke(params1).promise();
+    const detailRes = await lambda.invoke(params2).promise();
+    let overview = JSON.parse(overviewRes.Payload);
+    let detail = JSON.parse(detailRes.Payload);
+    overview = JSON.parse(overview.body);
+    detail = JSON.parse(detail.body);
+
+    const info = {
+      overview: overview.overview,
+      ...detail.detail,
+    };
+
+    console.log(info);
+    callback(null, {
+      statusCode: 200,
+      body: JSON.stringify(info),
+    });
+  } catch (err) {
+    callback(null, {
+      statusCode: 500,
+      body: JSON.stringify({
+        message: err.message,
+      }),
+    });
+  }
+};
+
+//external functions
 const haversine = (lat1, lon1, lat2, lon2) => {
   // Radius of the Earth in kilometers
   const earthRadius = 6371;
