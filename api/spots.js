@@ -15,10 +15,7 @@ async function connectToDatabase() {
     return cachedDb;
   }
 
-  // Connect to our MongoDB database hosted on MongoDB Atlas
   const client = await MongoClient.connect(MONGODB_URI);
-
-  // Specify which database we want to use
   const db = await client.db("travel");
 
   cachedDb = db;

@@ -75,5 +75,14 @@ functions:
       - http:
           path: spots/search
           method: get
-  # walkingTravel:
+  walkingTravel:
+    handler: api/courses.walking
+    memorySize: 128
+    timeout: 15
+    description: list walking travel courses
+    environment: ${file(env.json)}
+    events:
+      - http:
+          path: walkingTravel
+          method: get
   # bikeTravel:
