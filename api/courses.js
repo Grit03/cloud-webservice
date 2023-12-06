@@ -1,17 +1,18 @@
 "use strict";
 
 //? Imports & Configs
+//* 람다함수들에 필요하는 Import
 const MongoClient = require("mongodb").MongoClient;
 const AWS = require("aws-sdk");
 const axios = require("axios");
 const url = require("url");
-
-// Define our connection string. Info on where to get this will be described below. In a real world application you'd want to get this string from a key vault like AWS Key Management, but for brevity, we'll hardcode it in our serverless function here.
 const MONGODB_URI = process.env.MONGODB_URI;
 const API_KEY = process.env.API_KEY;
 
+//* DB 연결 cache
 let cachedDb = null;
 
+//* MongoDB에 연결하는 함수
 async function connectToDatabase() {
   if (cachedDb) {
     return cachedDb;
@@ -25,6 +26,7 @@ async function connectToDatabase() {
   return db;
 }
 
+//* AWS SDK 설정
 AWS.config.setPromisesDependency(require("bluebird"));
 
 AWS.config.update({
@@ -36,10 +38,13 @@ module.exports.walking = async (event, context, callback) => {
   context.callbackWaitsForEmptyEventLoop = false;
 
   try {
+    //* MongoDB에 연결하기
     const db = await connectToDatabase();
 
+    //* MongoDB에서 walkingTravels 데이터 받기
     const walkingTravels = await db.collection("walkingtrail").find().toArray();
 
+    //* 데이터포털 API 요청 params 준비
     let payload = {
       MobileOS: "ETC",
       MobileApp: "travelHelper",
@@ -50,6 +55,7 @@ module.exports.walking = async (event, context, callback) => {
 
     const params = new url.URLSearchParams(payload);
 
+    //* 데이터포털 API 요청하기
     const apiRes = await axios.get(
       `https://apis.data.go.kr/B551011/Durunubi/courseList?${params}`
     );
@@ -57,6 +63,7 @@ module.exports.walking = async (event, context, callback) => {
     const data = apiRes.data.response.body.items.item;
     const levelDic = ["초급", "중급", "고급"];
 
+    //* 데이터 preprocessing
     const parsedData = data.map((item) => {
       const {
         crsIdx: _id,
@@ -71,10 +78,10 @@ module.exports.walking = async (event, context, callback) => {
         travelerinfo,
       } = item;
 
-      // 코스 거리 전처리
+      //* 코스 거리 전처리
       const distance = crsDstnc + "㎞";
 
-      // 총 코스 시간 전처리
+      //* 총 코스 시간 전처리
       let total_time =
         parseInt(crsTotlRqrmHour) % 60 === 0
           ? parseInt(crsTotlRqrmHour) / 60
@@ -102,11 +109,13 @@ module.exports.walking = async (event, context, callback) => {
 
     const finalData = walkingTravels.concat(parsedData);
 
+    //* 데이터 리턴하기
     callback(null, {
       statusCode: 200,
       body: JSON.stringify(finalData),
     });
   } catch (err) {
+    //* 오류가 발생할 때 오류 메시지 리턴하기
     callback(null, {
       statusCode: 500,
       body: JSON.stringify({
@@ -119,6 +128,7 @@ module.exports.walking = async (event, context, callback) => {
 //` bikeTravel
 module.exports.bikeTravel = async (event, context, callback) => {
   try {
+    //* 데이터포털 API 요청 params 준비
     let payload = {
       MobileOS: "ETC",
       MobileApp: "travelHelper",
@@ -129,6 +139,7 @@ module.exports.bikeTravel = async (event, context, callback) => {
 
     const params = new url.URLSearchParams(payload);
 
+    //* 데이터포털 API 요청하기
     const apiRes = await axios.get(
       `https://apis.data.go.kr/B551011/Durunubi/courseList?${params}`
     );
@@ -136,6 +147,7 @@ module.exports.bikeTravel = async (event, context, callback) => {
     const data = apiRes.data.response.body.items.item;
     const levelDic = ["초급", "중급", "고급"];
 
+    //* 데이터 preprocessing
     const parsedData = data.map((item) => {
       const {
         crsIdx: _id,
@@ -150,10 +162,10 @@ module.exports.bikeTravel = async (event, context, callback) => {
         travelerinfo,
       } = item;
 
-      // 코스 거리 전처리
+      //* 코스 거리 전처리
       const distance = crsDstnc + "㎞";
 
-      // 총 코스 시간 전처리
+      //* 총 코스 시간 전처리
       let total_time =
         parseInt(crsTotlRqrmHour) % 60 === 0
           ? parseInt(crsTotlRqrmHour) / 60
@@ -179,11 +191,13 @@ module.exports.bikeTravel = async (event, context, callback) => {
       };
     });
 
+    //* 데이터 리턴하기
     callback(null, {
       statusCode: 200,
       body: JSON.stringify(parsedData),
     });
   } catch (err) {
+    //* 오류가 발생할 때 오류 메시지 리턴하기
     callback(null, {
       statusCode: 500,
       body: JSON.stringify({
