@@ -5,3 +5,7 @@ env.json
 
 # Serverless directories
 .serverless
+
+# env files
+.env
+.DS_Store

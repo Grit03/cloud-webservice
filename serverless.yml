@@ -95,3 +95,13 @@ functions:
           path: walkingTravel
           method: get
   # bikeTravel:
+  bikeTravel:
+    handler: api/courses.bikeTravel
+    memorySize: 128
+    timeout: 15
+    description: list bike travel courses
+    environment: ${file(env.json)}
+    events:
+      - http:
+          path: bikeTravel
+          method: get
