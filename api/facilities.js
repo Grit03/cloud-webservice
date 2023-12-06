@@ -124,9 +124,59 @@ module.exports.parkingLots = async (event, context, callback) => {
     console.log(parkingLots);
     parkingLots = filterPlacesByRadius(parkingLots, latitude, longitude, 0.5);
 
+    const parsedData = parkingLots.map((item) => {
+      const {
+        PARKING_NAME,
+        PARKING_CODE,
+        PARKING_TYPE_NM,
+        OPERATION_RULE_NM,
+        TEL,
+        PAY_YN,
+        PAY_NM,
+        NIGHT_FREE_OPEN,
+        NIGHT_FREE_OPEN_NM,
+        WEEKDAY_BEGIN_TIME,
+        WEEKDAY_END_TIME,
+        WEEKEND_BEGIN_TIME,
+        WEEKEND_END_TIME,
+        HOLIDAY_BEGIN_TIME,
+        HOLIDAY_END_TIME,
+        RATES,
+        TIME_RATE,
+        ADD_RATES,
+        ADD_TIME_RATE,
+        LAT,
+        LNG,
+      } = item;
+
+      return {
+        PARKING_NAME,
+        PARKING_CODE,
+        PARKING_TYPE_NM,
+        OPERATION_RULE_NM,
+        TEL,
+        PAY_YN,
+        PAY_NM,
+        NIGHT_FREE_OPEN,
+        NIGHT_FREE_OPEN_NM,
+        WEEKDAY_BEGIN_TIME,
+        WEEKDAY_END_TIME,
+        WEEKEND_BEGIN_TIME,
+        WEEKEND_END_TIME,
+        HOLIDAY_BEGIN_TIME,
+        HOLIDAY_END_TIME,
+        RATES,
+        TIME_RATE,
+        ADD_RATES,
+        ADD_TIME_RATE,
+        LAT,
+        LNG,
+      };
+    });
+
     callback(null, {
       statusCode: 200,
-      body: JSON.stringify({ parkingLots: parkingLots }),
+      body: JSON.stringify(parsedData),
     });
   } catch (err) {
     callback(null, {
